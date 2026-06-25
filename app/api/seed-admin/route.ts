@@ -4,6 +4,21 @@ import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
+    // Coba cek koneksi database dulu
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch {
+      // Database belum siap, coba push schema
+      return NextResponse.json(
+        {
+          error:
+            "Database belum siap. Jalankan 'npx prisma db push' di terminal Vercel atau hubungi developer.",
+          hint: "Gunakan Vercel CLI: vercel env pull && npx prisma db push",
+        },
+        { status: 500 },
+      );
+    }
+
     // Cek apakah admin sudah ada
     const existingAdmin = await prisma.user.findUnique({
       where: { email: "admin@hijabparadise.com" },
@@ -37,7 +52,10 @@ export async function GET() {
   } catch (error) {
     console.error("Seed admin error:", error);
     return NextResponse.json(
-      { error: "Gagal membuat akun admin" },
+      {
+        error: "Gagal membuat akun admin",
+        detail: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 },
     );
   }
