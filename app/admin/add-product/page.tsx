@@ -5,7 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Plus, X, Upload } from "lucide-react";
+import { Plus, X, Upload, Star } from "lucide-react";
 import { addProduct } from "@/actions";
 
 interface Variant {
@@ -207,20 +207,22 @@ export default function AddProductPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/30">
+        <div className="relative">
+          <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-50/50 to-amber-50/50 dark:from-emerald-950/20 dark:to-amber-950/20 islamic-pattern">
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
           <button
             onClick={() => router.push("/admin/dashboard")}
-            className="text-sm text-purple-600 hover:text-purple-700 mb-4 flex items-center gap-2"
+            className="text-sm text-emerald-600 hover:text-emerald-700 mb-4 flex items-center gap-2 font-medium"
           >
             ← Kembali ke Dashboard
           </button>
@@ -236,14 +238,14 @@ export default function AddProductPage() {
         <div className="max-w-2xl mx-auto">
           <form
             onSubmit={handleSubmit}
-            className="bg-card rounded-lg border border-border p-8 shadow-sm"
+            className="bg-white dark:bg-card rounded-2xl border border-border/50 p-8 shadow-sm"
           >
             {/* Image Upload Section */}
             <div className="mb-8">
               <label className="block text-sm font-semibold text-foreground mb-3">
                 Upload Gambar Produk *
               </label>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer relative group">
+              <div className="border-2 border-dashed border-border/60 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors cursor-pointer relative group">
                 <input
                   type="file"
                   accept="image/*"
@@ -256,7 +258,7 @@ export default function AddProductPage() {
                     <img
                       src={imagePreview || "/placeholder.svg"}
                       alt="Preview"
-                      className="max-h-64 mx-auto rounded-lg object-cover"
+                      className="max-h-64 mx-auto rounded-xl object-cover"
                     />
                     <button
                       type="button"
@@ -265,14 +267,14 @@ export default function AddProductPage() {
                         setImagePreview(null);
                         setFormData((prev) => ({ ...prev, image: null }));
                       }}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="group-hover:text-primary transition-colors">
-                    <Upload className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
+                  <div className="group-hover:text-emerald-600 transition-colors">
+                    <Upload className="w-12 h-12 mx-auto mb-2 text-muted-foreground group-hover:text-emerald-400 transition-colors" />
                     <p className="font-semibold text-foreground">
                       Klik untuk upload gambar
                     </p>
@@ -283,8 +285,21 @@ export default function AddProductPage() {
                 )}
               </div>
               {uploadedUrl && (
-                <p className="text-xs text-green-600 mt-2">
-                  ✓ Gambar berhasil diupload ke Vercel Blob
+                <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Gambar berhasil diupload
                 </p>
               )}
             </div>
@@ -306,7 +321,7 @@ export default function AddProductPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Contoh: Hijab Voile Premium"
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder-muted-foreground"
+                  className="w-full px-4 py-2.5 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground placeholder-muted-foreground transition-all"
                 />
               </div>
 
@@ -325,7 +340,7 @@ export default function AddProductPage() {
                   onChange={handleInputChange}
                   placeholder="Jelaskan detail produk, bahan, dan keunggulan produk ini"
                   rows={4}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder-muted-foreground resize-none"
+                  className="w-full px-4 py-2.5 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground placeholder-muted-foreground transition-all resize-none"
                 />
               </div>
 
@@ -346,7 +361,7 @@ export default function AddProductPage() {
                     value={formData.price}
                     onChange={handleInputChange}
                     placeholder="Contoh: 89000"
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder-muted-foreground"
+                    className="w-full px-4 py-2.5 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground placeholder-muted-foreground transition-all"
                   />
                 </div>
 
@@ -363,7 +378,7 @@ export default function AddProductPage() {
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
+                    className="w-full px-4 py-2.5 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground transition-all"
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
@@ -384,7 +399,7 @@ export default function AddProductPage() {
                 <button
                   type="button"
                   onClick={handleAddVariant}
-                  className="flex items-center gap-2 px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-accent transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors shadow-md"
                 >
                   <Plus className="w-4 h-4" />
                   Tambah Varian
@@ -405,7 +420,7 @@ export default function AddProductPage() {
                           handleVariantSizeChange(variant.id, e.target.value)
                         }
                         placeholder="Contoh: S, M, L"
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground text-sm"
+                        className="w-full px-3 py-2 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground text-sm transition-all"
                       />
                     </div>
                     <div className="flex-1">
@@ -422,13 +437,13 @@ export default function AddProductPage() {
                           )
                         }
                         placeholder="0"
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground text-sm"
+                        className="w-full px-3 py-2 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground text-sm transition-all"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveVariant(variant.id)}
-                      className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -446,9 +461,16 @@ export default function AddProductPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary hover:bg-accent text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Menyimpan..." : "Simpan Produk"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Menyimpan...
+                </span>
+              ) : (
+                "Simpan Produk"
+              )}
             </button>
           </form>
         </div>

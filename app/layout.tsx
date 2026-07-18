@@ -13,8 +13,19 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Hijab Paradise - Online Shop Pakaian Muslim",
   description:
-    "Toko online pakaian muslim berkualitas dengan desain modern dan islami",
+    "Toko online pakaian muslim berkualitas dengan desain modern dan islami. Temukan koleksi hijab, gamis, tunik, pashmina, dan abaya terbaru.",
   generator: "v0.app",
+  keywords: [
+    "hijab",
+    "pakaian muslim",
+    "gamis",
+    "tunik",
+    "pashmina",
+    "abaya",
+    "jilbab",
+    "busana muslim",
+    "online shop hijab",
+  ],
   icons: {
     icon: [
       {
@@ -40,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
         <SessionProvider>
           <CartProvider>{children}</CartProvider>

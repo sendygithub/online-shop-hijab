@@ -13,6 +13,10 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
+  Star,
+  TrendingUp,
+  DollarSign,
+  Clock,
 } from "lucide-react";
 
 interface OrderItem {
@@ -122,17 +126,17 @@ export default function AdminDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
       case "processing":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
       case "shipped":
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300";
       case "delivered":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
     }
   };
 
@@ -165,10 +169,15 @@ export default function AdminDashboard() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/30">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Memuat dashboard...</p>
+          <div className="relative">
+            <div className="w-14 h-14 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-4 h-4 bg-emerald-600 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+          <p className="text-muted-foreground">Memuat dashboard...</p>
         </div>
       </div>
     );
@@ -179,37 +188,38 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 to-amber-50/50 dark:from-emerald-950/20 dark:to-amber-950/20 islamic-pattern">
       {/* Top Navigation */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white/95 dark:bg-card/95 backdrop-blur-md shadow-sm border-b border-border/50 sticky top-0 z-50">
+        <div className="h-1 bg-gradient-to-r from-emerald-600 via-amber-400 to-emerald-600" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                HP
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center text-white font-bold shadow-lg">
+                <Star className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-bold text-gray-800">Admin Dashboard</h1>
-                <p className="text-xs text-gray-500">Hijab Paradise</p>
+                <h1 className="font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-xs text-muted-foreground">Hijab Paradise</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Link
                 href="/admin/add-product"
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30 transition-all duration-200"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Produk
               </Link>
               <Link
                 href="/"
-                className="text-sm text-gray-600 hover:text-gray-800"
+                className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors font-medium"
               >
                 Lihat Toko
               </Link>
               <button
                 onClick={() => signOut({ callbackUrl: "/admin/login" })}
-                className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
+                className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors text-sm font-medium"
               >
                 <LogOut className="w-4 h-4" />
                 Keluar
@@ -222,85 +232,86 @@ export default function AdminDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm p-6 border border-border/50 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Pesanan</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-sm text-muted-foreground">Total Pesanan</p>
+                <p className="text-2xl font-bold text-foreground">
                   {stats.totalOrders}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm p-6 border border-border/50 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Pendapatan</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-sm text-muted-foreground">Pendapatan</p>
+                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   Rp {stats.totalRevenue.toLocaleString("id-ID")}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Package className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm p-6 border border-border/50 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Produk</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-sm text-muted-foreground">Total Produk</p>
+                <p className="text-2xl font-bold text-foreground">
                   {stats.totalProducts}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Package className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center">
+                <Package className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm p-6 border border-border/50 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Menunggu</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-sm text-muted-foreground">Menunggu</p>
+                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                   {stats.pendingOrders}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-yellow-600" />
+              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Orders Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-sm border border-border/50 overflow-hidden">
+          <div className="p-6 border-b border-border/50">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h2 className="text-lg font-bold text-gray-800">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
                 Daftar Pesanan
               </h2>
               <div className="flex gap-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
                     placeholder="Cari pesanan..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="pl-9 pr-4 py-2 border border-border/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground"
                   />
                 </div>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="px-3 py-2 border border-border/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 bg-muted/50 dark:bg-input text-foreground"
                 >
                   <option value="all">Semua Status</option>
                   <option value="pending">Menunggu</option>
@@ -315,18 +326,23 @@ export default function AdminDashboard() {
 
           {loading ? (
             <div className="p-12 text-center">
-              <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-gray-500 mt-3">Memuat pesanan...</p>
+              <div className="relative inline-block">
+                <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+              </div>
+              <p className="text-muted-foreground mt-3">Memuat pesanan...</p>
             </div>
           ) : filteredOrders.length === 0 ? (
             <div className="p-12 text-center">
-              <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">Belum ada pesanan</p>
+              <ShoppingBag className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">Belum ada pesanan</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border/50">
               {filteredOrders.map((order) => (
-                <div key={order.id} className="p-6">
+                <div
+                  key={order.id}
+                  className="p-6 hover:bg-muted/30 transition-colors"
+                >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <button
@@ -335,19 +351,19 @@ export default function AdminDashboard() {
                             expandedOrder === order.id ? null : order.id,
                           )
                         }
-                        className="p-1 hover:bg-gray-100 rounded"
+                        className="p-1.5 hover:bg-muted rounded-lg transition-colors"
                       >
                         {expandedOrder === order.id ? (
-                          <ChevronUp className="w-5 h-5 text-gray-500" />
+                          <ChevronUp className="w-5 h-5 text-muted-foreground" />
                         ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-500" />
+                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
                         )}
                       </button>
                       <div>
-                        <p className="font-semibold text-gray-800">
+                        <p className="font-semibold text-foreground">
                           {order.name}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {order.email} • {order.phone}
                         </p>
                       </div>
@@ -358,7 +374,7 @@ export default function AdminDashboard() {
                       >
                         {getStatusLabel(order.status)}
                       </span>
-                      <p className="font-bold text-gray-800">
+                      <p className="font-bold text-foreground">
                         Rp {order.total.toLocaleString("id-ID")}
                       </p>
                     </div>
@@ -368,14 +384,15 @@ export default function AdminDashboard() {
                   {expandedOrder === order.id && (
                     <div className="ml-9 mt-4 space-y-4">
                       {/* Shipping Info */}
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                      <div className="bg-muted/50 rounded-xl p-4 border border-border/30">
+                        <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                          <Package className="w-4 h-4 text-emerald-500" />
                           Informasi Pengiriman
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {order.address}, {order.city} - {order.postalCode}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-muted-foreground/60 mt-1">
                           Pesanan:{" "}
                           {new Date(order.createdAt).toLocaleDateString(
                             "id-ID",
@@ -392,16 +409,16 @@ export default function AdminDashboard() {
 
                       {/* Order Items */}
                       <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-gray-700">
+                        <h4 className="text-sm font-semibold text-foreground">
                           Item Pesanan
                         </h4>
                         {order.items.map((item) => (
                           <div
                             key={item.id}
-                            className="flex items-center justify-between bg-white border border-gray-100 rounded-lg p-3"
+                            className="flex items-center justify-between bg-white dark:bg-card border border-border/30 rounded-xl p-3"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
+                              <div className="w-12 h-12 bg-muted rounded-xl overflow-hidden">
                                 {item.product.image && (
                                   <img
                                     src={
@@ -413,15 +430,15 @@ export default function AdminDashboard() {
                                 )}
                               </div>
                               <div>
-                                <p className="text-sm font-semibold text-gray-800">
+                                <p className="text-sm font-semibold text-foreground">
                                   {item.product.name}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-muted-foreground">
                                   Ukuran: {item.size} x {item.quantity}
                                 </p>
                               </div>
                             </div>
-                            <p className="text-sm font-semibold text-gray-800">
+                            <p className="text-sm font-semibold text-foreground">
                               Rp{" "}
                               {(item.price * item.quantity).toLocaleString(
                                 "id-ID",
@@ -433,7 +450,7 @@ export default function AdminDashboard() {
 
                       {/* Status Update */}
                       <div className="flex items-center gap-2 pt-2">
-                        <label className="text-sm text-gray-600">
+                        <label className="text-sm text-muted-foreground">
                           Ubah Status:
                         </label>
                         <select
@@ -441,7 +458,7 @@ export default function AdminDashboard() {
                           onChange={(e) =>
                             updateOrderStatus(order.id, e.target.value)
                           }
-                          className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="px-3 py-1.5 border border-border/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/50 bg-muted/50 dark:bg-input text-foreground"
                         >
                           <option value="pending">Menunggu</option>
                           <option value="processing">Diproses</option>

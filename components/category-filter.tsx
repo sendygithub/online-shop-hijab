@@ -1,24 +1,27 @@
-"use client"
+"use client";
 
 interface CategoryFilterProps {
-  categories: string[]
-  selectedCategory: string
-  onSelectCategory: (category: string) => void
+  categories: string[];
+  selectedCategory: string;
+  onSelectCategory: (category: string) => void;
 }
 
-export default function CategoryFilter({ categories, selectedCategory, onSelectCategory }: CategoryFilterProps) {
+export default function CategoryFilter({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+}: CategoryFilterProps) {
   return (
-    <div className="mb-12">
-      <h2 className="text-lg font-semibold text-foreground mb-4">Kategori</h2>
-      <div className="flex flex-wrap gap-3">
+    <div className="mb-10">
+      <div className="flex flex-wrap gap-3 justify-center">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => onSelectCategory(category)}
-            className={`px-6 py-2 rounded-full font-medium transition-all duration-200 ${
+            className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-200 text-sm ${
               selectedCategory === category
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "bg-muted text-foreground hover:bg-accent/20 border border-border"
+                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30"
+                : "bg-white dark:bg-card text-foreground hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-border/60 hover:border-emerald-400"
             }`}
           >
             {category}
@@ -26,6 +29,5 @@ export default function CategoryFilter({ categories, selectedCategory, onSelectC
         ))}
       </div>
     </div>
-  )
+  );
 }
-
