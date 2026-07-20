@@ -39,7 +39,7 @@ const categories = [
   "Jilbab",
   "Aksesori",
 ];
-const PRODUCTS_PER_PAGE = 6;
+const PRODUCTS_PER_PAGE = 8;
 
 export default function Home() {
   const router = useRouter();
@@ -93,7 +93,6 @@ export default function Home() {
 
   const handleAddToCart = (productId: number) => {
     addItem(Number(productId));
-    router.push("/checkout");
   };
 
   const handleAddToCartFromModal = (
@@ -105,7 +104,6 @@ export default function Home() {
     for (let i = 0; i < quantity; i++) {
       addItem(Number(productId));
     }
-    router.push("/checkout");
   };
 
   const handleNavigateCart = () => {
@@ -316,12 +314,9 @@ export default function Home() {
         ) : (
           <>
             {/* Products Grid - Masonry-like with varied cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedProducts.map((product, index) => (
-                <div
-                  key={product.id}
-                  className={`${index === 0 ? "lg:col-span-2 lg:row-span-1" : ""}`}
-                >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {paginatedProducts.map((product) => (
+                <div key={product.id}>
                   <ProductCard
                     product={{
                       id: Number(product.id),

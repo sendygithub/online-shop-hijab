@@ -17,14 +17,16 @@ import { useState, useRef, useEffect } from "react";
 import { useCart } from "@/app/context/cart-context";
 import { useDarkMode } from "@/hooks/use-dark-mode";
 import { useSession, signOut } from "next-auth/react";
+import CartDropdown from "@/components/cart-dropdown";
 
 interface HeaderProps {
-  onNavigateCart: () => void;
+  onNavigateCart?: () => void;
 }
 
 export default function Header({ onNavigateCart }: HeaderProps) {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
   const { getTotalItems } = useCart();
   const { isDark, toggleDarkMode, mounted } = useDarkMode();
   const { data: session } = useSession();
@@ -114,7 +116,7 @@ export default function Header({ onNavigateCart }: HeaderProps) {
 
               {/* Cart */}
               <button
-                onClick={onNavigateCart}
+                onClick={() => setShowCartDropdown(true)}
                 className="relative p-2.5 hover:bg-muted rounded-xl transition-colors"
               >
                 <ShoppingCart className="w-5 h-5 text-foreground" />
@@ -169,7 +171,7 @@ export default function Header({ onNavigateCart }: HeaderProps) {
                         Beranda
                       </Link>
                       <Link
-                        href="/checkout"
+                        href="/cart"
                         onClick={() => setShowAccountMenu(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-xl transition-colors"
                       >
@@ -244,6 +246,12 @@ export default function Header({ onNavigateCart }: HeaderProps) {
           )}
         </div>
       </div>
+
+      {/* Cart Dropdown */}
+      <CartDropdown
+        isOpen={showCartDropdown}
+        onClose={() => setShowCartDropdown(false)}
+      />
     </header>
   );
 }
