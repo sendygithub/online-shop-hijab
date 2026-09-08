@@ -1,5 +1,13 @@
 import "dotenv/config";
-import { PrismaClient } from "@/app/generated/prisma/client";
+import net from "node:net";
+import dns from "node:dns";
+
+// Fix koneksi Neon/Postgres di WSL: paksa preferensi IPv4
+// (DNS sering resolve IPv6 duluan padahal IPv6 tidak tersedia -> ETIMEDOUT).
+net.setDefaultAutoSelectFamily(false);
+dns.setDefaultResultOrder("ipv4first");
+
+import { PrismaClient } from "../app/generated/prisma/client.ts";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
@@ -8,16 +16,14 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  // Cek apakah admin sudah ada
+  // 1) Akun admin
   const existingAdmin = await prisma.user.findUnique({
     where: { email: "admin@hijabparadise.com" },
   });
 
   if (!existingAdmin) {
-    // Buat akun admin
     const hashedPassword = await bcrypt.hash("admin123", 12);
-
-    const admin = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: "admin@hijabparadise.com",
         name: "Admin Hijab Paradise",
@@ -25,17 +31,15 @@ async function main() {
         role: "admin",
       },
     });
-
     console.log("Akun admin berhasil dibuat:");
-    console.log("  Email: admin@hijabparadise.com");
+    console.log("  Email:    admin@hijabparadise.com");
     console.log("  Password: admin123");
   } else {
-    console.log("Admin sudah terdaftar:", existingAdmin.email);
+    console.log("Akun admin sudah ada:", existingAdmin.email);
   }
 
-  // Cek apakah sudah ada produk
+  // 2) Produk (hanya jika belum ada)
   const existingProducts = await prisma.product.count();
-
   if (existingProducts > 0) {
     console.log(
       `Sudah ada ${existingProducts} produk di database. Lewati seeding produk.`,
@@ -43,7 +47,6 @@ async function main() {
     return;
   }
 
-  // Data dummy 20 produk
   const products = [
     {
       name: "Hijab Pashmina Ceruty Silk Premium",
@@ -288,15 +291,12 @@ async function main() {
   ];
 
   for (const product of products) {
-    await prisma.product.create({
-      data: product,
-    });
+    await prisma.product.create({ data: product });
   }
 
   console.log(
-    `\n✅ Berhasil menambahkan ${products.length} produk dummy ke database!`,
+    `\n✅ Berhasil menambahkan ${products.length} produk ke database!`,
   );
-  console.log("Produk-produk tersebut akan tampil di halaman utama.");
 }
 
 main()

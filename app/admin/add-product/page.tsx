@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Plus, X, Upload, Star } from "lucide-react";
-import { addProduct } from "@/actions";
 
 interface Variant {
   id: string;
@@ -156,24 +155,27 @@ export default function AddProductPage() {
         setUploadedUrl(imageUrl);
       }
 
-      // Use server action to add product
-      const submitData = new FormData();
-      submitData.append("name", formData.name);
-      submitData.append("price", formData.price);
-      submitData.append("description", formData.description);
-      submitData.append("category", formData.category);
-      submitData.append("stock", String(totalStock));
-      if (imageUrl) {
-        submitData.append("imageUrl", imageUrl);
-      }
-
-      // Add sizes
+      // Simpan produk via API /api/products (khusus admin)
       const activeVariants = variants.filter((v) => v.stock > 0);
-      activeVariants.forEach((v) => {
-        submitData.append("sizes", v.size);
+
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          price: Number(formData.price),
+          description: formData.description,
+          category: formData.category,
+          stock: totalStock,
+          sizes: activeVariants.map((v) => v.size),
+          imageUrl: imageUrl || null,
+        }),
       });
 
-      await addProduct(submitData);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Gagal menyimpan produk");
+      }
 
       alert("Produk berhasil ditambahkan!");
 

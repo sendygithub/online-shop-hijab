@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
+import { Heart, ShoppingCart, Star, Eye, Zap } from "lucide-react";
 
 interface Product {
   id: number;
@@ -29,21 +29,33 @@ export default function ProductCard({
   onAddToCart,
   onViewDetail,
 }: ProductCardProps) {
-  return (
-    <div className="group relative bg-white dark:bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
-      {/* Islamic geometric pattern accent top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-500 z-10" />
+  const hasDiscount = product.sold && product.sold > 50;
 
+  return (
+    <div className="group relative bg-white dark:bg-card rounded-3xl overflow-hidden border border-border/60 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/5 dark:hover:shadow-emerald-900/20 transition-all duration-500 hover:-translate-y-1.5 flex flex-col">
       {/* Image Container */}
-      <div className="relative h-56 md:h-72 bg-gradient-to-br from-emerald-50 to-amber-50 dark:from-emerald-950/20 dark:to-amber-950/20 overflow-hidden">
+      <div className="relative aspect-[4/5] product-img-container overflow-hidden">
         <img
           src={product.image || "/placeholder.svg"}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
         />
 
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Category Badge */}
+        <div className="absolute top-3 left-3 bg-white/95 dark:bg-card/95 backdrop-blur-md text-foreground px-3 py-1.5 rounded-full text-[11px] font-bold shadow-lg border border-border/50">
+          {product.category}
+        </div>
+
+        {/* Hot / Best Seller Badge */}
+        {hasDiscount && (
+          <div className="absolute top-3 left-3 right-auto mr-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1">
+            <Zap className="w-3 h-3 fill-white" />
+            Best Seller
+          </div>
+        )}
 
         {/* Favorite Button */}
         <button
@@ -51,91 +63,107 @@ export default function ProductCard({
             e.stopPropagation();
             onToggleFavorite();
           }}
-          className="absolute top-3 right-3 p-2.5 bg-white/90 dark:bg-card/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white dark:hover:bg-card transition-all duration-200 z-10 hover:scale-110"
+          className="absolute top-3 right-3 p-2 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full shadow-lg hover:bg-white dark:hover:bg-card transition-all duration-200 hover:scale-110 border border-border/50 z-10"
         >
           <Heart
-            className={`w-4 h-4 ${
+            className={`w-4 h-4 transition-colors ${
               isFavorite
                 ? "fill-red-500 text-red-500"
-                : "text-gray-400 dark:text-gray-500"
+                : "text-gray-400 dark:text-gray-500 group-hover:text-red-400"
             }`}
           />
         </button>
 
-        {/* Category Badge */}
-        <div className="absolute top-3 left-3 bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-          {product.category}
-        </div>
-
-        {/* Quick View Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewDetail();
-          }}
-          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-        >
-          <span className="bg-white/90 dark:bg-card/90 backdrop-blur-sm text-foreground px-5 py-2.5 rounded-xl font-semibold text-sm shadow-xl flex items-center gap-2 hover:bg-white dark:hover:bg-card transition-colors">
-            <Eye className="w-4 h-4" />
-            Lihat Detail
-          </span>
-        </button>
-
-        {/* Sold count badge */}
-        {product.sold && product.sold > 0 && (
-          <div className="absolute bottom-3 left-3 bg-black/50 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-xs">
-            {product.sold} terjual
+        {/* Quick View & Add to Cart - Mobile optimized overlay */}
+        <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
+          <div className="flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetail();
+              }}
+              className="flex-1 bg-white/95 dark:bg-card/95 backdrop-blur-md text-foreground py-2.5 rounded-xl font-semibold text-xs shadow-xl flex items-center justify-center gap-1.5 hover:bg-white dark:hover:bg-card transition-colors border border-border/50"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Detail
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart();
+              }}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-xl flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              Keranjang
+            </button>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-5">
+      <div className="p-4 flex flex-col flex-1">
         {/* Rating */}
-        <div className="flex items-center gap-1 mb-2.5">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={`w-3.5 h-3.5 ${
-                i < Math.floor(product.rating)
-                  ? "fill-amber-400 text-amber-400"
-                  : "text-gray-300 dark:text-gray-600"
-              }`}
-            />
-          ))}
-          <span className="text-xs text-muted-foreground ml-1.5">
+        <div className="flex items-center gap-1 mb-2">
+          <div className="flex items-center gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`w-3 h-3 ${
+                  i < Math.floor(product.rating)
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-gray-200 dark:text-gray-700"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[11px] text-muted-foreground font-medium">
             ({product.rating})
           </span>
         </div>
 
         {/* Product Name */}
-        <h3 className="font-semibold text-foreground text-sm mb-1.5 line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors min-h-[2.5rem]">
+        <h3
+          className="font-semibold text-sm text-foreground mb-1.5 line-clamp-2 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors cursor-pointer"
+          onClick={onViewDetail}
+        >
           {product.name}
         </h3>
 
-        {/* Description */}
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
-          {product.description}
-        </p>
-
-        {/* Price */}
-        <div className="mb-4">
-          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-            Rp {product.price.toLocaleString("id-ID")}
+        {/* Sold count */}
+        {product.sold && product.sold > 0 && (
+          <p className="text-[11px] text-muted-foreground mb-2">
+            {product.sold} terjual
           </p>
-        </div>
+        )}
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToCart();
-          }}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-md shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-lg hover:-translate-y-0.5"
-        >
-          <ShoppingCart className="w-4 h-4" />
-          Tambah ke Keranjang
-        </button>
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Price & CTA */}
+        <div className="mt-3 pt-3 border-t border-border/50">
+          <div className="flex items-end justify-between gap-2 mb-3">
+            <div>
+              <p className="text-xs text-muted-foreground line-through decoration-muted-foreground/60">
+                Rp {(product.price * 1.2).toLocaleString("id-ID")}
+              </p>
+              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
+                Rp {product.price.toLocaleString("id-ID")}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart();
+            }}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-semibold py-3 rounded-2xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30 hover:shadow-xl active:shadow-md text-sm"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Tambah
+          </button>
+        </div>
       </div>
     </div>
   );

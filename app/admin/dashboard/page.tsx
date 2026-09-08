@@ -73,13 +73,6 @@ export default function AdminDashboard() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchOrders();
-      fetchStats();
-    }
-  }, [status]);
-
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/orders");
@@ -102,6 +95,14 @@ export default function AdminDashboard() {
     }
   };
 
+  // Fetch-on-mount (saat sesi admin aktif): pesanan + statistik dashboard.
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchOrders();
+      fetchStats();
+    }
+  }, [status]);
+
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const res = await fetch("/api/orders", {
@@ -117,6 +118,9 @@ export default function AdminDashboard() {
           ),
         );
         fetchStats();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || "Gagal mengubah status pesanan");
       }
     } catch (error) {
       console.error("Error updating order:", error);

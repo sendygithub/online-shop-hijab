@@ -44,10 +44,6 @@ export function CheckoutContent() {
     postalCode: "",
   });
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const res = await fetch("/api/products");
@@ -64,6 +60,11 @@ export function CheckoutContent() {
       setLoading(false);
     }
   };
+
+  // Fetch-on-mount: muat produk untuk dihitung ulang di checkout.
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleQuantityChange = (index: number, quantity: number) => {
     if (quantity < 1) return;

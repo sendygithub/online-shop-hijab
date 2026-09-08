@@ -1,185 +1,58 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
+import {
+  ApiError,
+  getSessionUser,
+  handleApiError,
+  jsonOk,
+  requireAdmin,
+} from "@/lib/api/http";
+import {
+  createOrderSchema,
+  updateOrderStatusSchema,
+} from "@/lib/validations/order.validation";
+import {
+  createOrder,
+  listOrders,
+  updateOrderStatus,
+} from "@/lib/services/order.service";
 
-// GET: Fetch all orders (admin only)
-export async function GET() {
+// GET /api/orders — daftar pesanan (khusus admin)
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const orders = await prisma.order.findMany({
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                name: true,
-                image: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return NextResponse.json(orders);
+    await requireAdmin(request);
+    const orders = await listOrders();
+    return jsonOk(orders);
   } catch (error) {
-    console.error("Error fetching orders:", error);
-    return NextResponse.json(
-      { error: "Gagal mengambil pesanan" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
-// POST: Create a new order (public)
-export async function POST(request: Request) {
+// POST /api/orders — buat pesanan baru (publik)
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, phone, address, city, postalCode, items } = body;
+    const parsed = createOrderSchema.parse(body);
 
-    if (
-      !email ||
-      !name ||
-      !phone ||
-      !address ||
-      !city ||
-      !postalCode ||
-      !items ||
-      items.length === 0
-    ) {
-      return NextResponse.json(
-        { error: "Semua field harus diisi" },
-        { status: 400 },
-      );
-    }
+    const userId = await getSessionUser(request).then((u) => u?.id ?? null);
 
-    // Calculate total and validate products
-    let total = 0;
-    for (const item of items) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId },
-      });
-
-      if (!product) {
-        return NextResponse.json(
-          { error: `Produk dengan ID ${item.productId} tidak ditemukan` },
-          { status: 404 },
-        );
-      }
-
-      total += product.price * item.quantity;
-    }
-
-    // Get user session if logged in
-    const session = await getServerSession(authOptions);
-
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        userId: session?.user?.id || null,
-        email,
-        name,
-        phone,
-        address,
-        city,
-        postalCode,
-        status: "pending",
-        total,
-        items: {
-          create: items.map(
-            (item: {
-              productId: string;
-              quantity: number;
-              size: string;
-              price: number;
-            }) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              size: item.size,
-              price: item.price,
-            }),
-          ),
-        },
-      },
-      include: {
-        items: true,
-      },
-    });
-
-    // Update product sold count
-    for (const item of items) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          sold: { increment: item.quantity },
-          stock: { decrement: item.quantity },
-        },
-      });
-    }
-
-    return NextResponse.json(order, { status: 201 });
+    const order = await createOrder(parsed, userId);
+    return jsonOk(order, 201);
   } catch (error) {
-    console.error("Error creating order:", error);
-    return NextResponse.json(
-      { error: "Gagal membuat pesanan" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
-// PATCH: Update order status (admin only)
-export async function PATCH(request: Request) {
+// PATCH /api/orders — ubah status pesanan (khusus admin)
+export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await requireAdmin(request);
 
     const body = await request.json();
-    const { orderId, status } = body;
+    const parsed = updateOrderStatusSchema.parse(body);
 
-    if (!orderId || !status) {
-      return NextResponse.json(
-        { error: "Order ID dan status diperlukan" },
-        { status: 400 },
-      );
-    }
-
-    const validStatuses = [
-      "pending",
-      "processing",
-      "shipped",
-      "delivered",
-      "cancelled",
-    ];
-    if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: "Status tidak valid" },
-        { status: 400 },
-      );
-    }
-
-    const order = await prisma.order.update({
-      where: { id: orderId },
-      data: { status },
-    });
-
-    return NextResponse.json(order);
+    const order = await updateOrderStatus(parsed);
+    return jsonOk(order);
   } catch (error) {
-    console.error("Error updating order:", error);
-    return NextResponse.json(
-      { error: "Gagal mengupdate pesanan" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }

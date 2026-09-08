@@ -7,6 +7,8 @@ export function useDarkMode() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    // Hydration-gate: hindari mismatch render server/client untuk toggle
+    // dark mode (state hanya boleh dibaca setelah mount).
     setMounted(true)
     // Check if dark mode is enabled in localStorage or system preference
     const isDarkMode =

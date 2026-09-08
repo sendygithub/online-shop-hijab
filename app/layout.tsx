@@ -52,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`font-sans antialiased`}>
+      <body className={`font-sans antialiased pb-safe md:pb-0`}>
         <SessionProvider>
           <CartProvider>{children}</CartProvider>
         </SessionProvider>

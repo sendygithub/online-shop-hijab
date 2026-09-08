@@ -1,36 +1,22 @@
-import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
+import { handleApiError, jsonOk, requireAdmin } from "@/lib/api/http";
+import { uploadProductImage } from "@/lib/services/media.service";
 
-export async function POST(request: Request) {
+// POST /api/upload — upload gambar produk ke Vercel Blob (khusus admin)
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await requireAdmin(request);
 
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "File tidak ditemukan" },
-        { status: 400 },
-      );
+      return jsonOk({ error: "File tidak ditemukan" }, 400);
     }
 
-    const blob = await put(file.name, file, {
-      access: "public",
-    });
-
-    return NextResponse.json({ url: blob.url });
+    const url = await uploadProductImage(file);
+    return jsonOk({ url });
   } catch (error) {
-    console.error("Error uploading file:", error);
-    return NextResponse.json(
-      { error: "Gagal mengupload gambar" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }

@@ -2,10 +2,13 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { verifyCredentials } from "@/lib/services/auth.service";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -14,24 +17,12 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email dan password diperlukan");
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user || !user.password) {
-          throw new Error("Email atau password salah");
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password,
+        const user = await verifyCredentials(
+          credentials?.email ?? "",
+          credentials?.password ?? "",
         );
 
-        if (!isPasswordValid) {
+        if (!user) {
           throw new Error("Email atau password salah");
         }
 
@@ -40,18 +31,15 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          image: user.image,
+          image: user.image ?? undefined,
         };
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
+        token.role = (user as { role?: string }).role;
         token.id = user.id;
       }
       return token;

@@ -1,38 +1,14 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
+import { handleApiError, jsonOk, requireAdmin } from "@/lib/api/http";
+import { getDashboardStats } from "@/lib/services/stats.service";
 
-export async function GET() {
+// GET /api/admin/stats — statistik dashboard (khusus admin)
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const [totalOrders, totalRevenue, totalProducts, pendingOrders] =
-      await Promise.all([
-        prisma.order.count(),
-        prisma.order.aggregate({
-          _sum: { total: true },
-          where: { status: { not: "cancelled" } },
-        }),
-        prisma.product.count(),
-        prisma.order.count({ where: { status: "pending" } }),
-      ]);
-
-    return NextResponse.json({
-      totalOrders,
-      totalRevenue: totalRevenue._sum.total || 0,
-      totalProducts,
-      pendingOrders,
-    });
+    await requireAdmin(request);
+    const stats = await getDashboardStats();
+    return jsonOk(stats);
   } catch (error) {
-    console.error("Error fetching stats:", error);
-    return NextResponse.json(
-      { error: "Gagal mengambil statistik" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
